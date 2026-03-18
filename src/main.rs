@@ -1,11 +1,14 @@
+use std::fs::File;
+use std::io::{Read};
+
 #[derive(Debug, PartialEq)]
 enum Token {
-    Number(f64),        // For numbers (For JS everything is f64) :- 6.1.6.1 The Number Type
+    Number(f64), // For numbers (For JS everything is f64) :- 6.1.6.1 The Number Type
     StringLiteral(String), // For string literals :- 12.9.4 String Literals
     Identifier(String), // identifiers names for vars and functions :- BindingIdentifier
-    Let,                // "let" keyword
-    Assign,             // Operator =
-    Semicolon,          // semicolon - ;
+    Let,         // "let" keyword
+    Assign,      // Operator =
+    Semicolon,   // semicolon - ;
 
     Equal,    // ==
     Not,      // !
@@ -94,7 +97,6 @@ impl Lexer {
         self.input[start..self.pos].iter().collect()
     }
 
-
     fn read_string_value(&mut self) -> String {
         let start = self.pos;
         while self.pos < self.input.len() && self.input[self.pos] != '"' {
@@ -131,9 +133,10 @@ impl Lexer {
 }
 
 fn main() {
-    // TODO: Get code from file;
-    let code = "let s = \"hello world\";";
-    let mut lexer: Lexer = Lexer::new(code);
+    let mut f = File::open("../examples/example.js").unwrap();
+    let mut buffer = String::new();
+    f.read_to_string(&mut buffer).unwrap();
+    let mut lexer: Lexer = Lexer::new(&buffer);
 
     print!("{:?}", lexer);
 
