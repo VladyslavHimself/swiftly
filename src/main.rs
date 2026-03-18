@@ -45,7 +45,6 @@ impl Lexer {
             };
         }
 
-        // Логіка для чисел
         if ch.is_numeric() {
             return Token::Number(self.read_number());
         }
@@ -57,7 +56,6 @@ impl Lexer {
             return Token::StringLiteral(value);
         }
 
-        // Operators
         match ch {
             '=' => {
                 if self.peek() == Some('=') {
@@ -103,7 +101,6 @@ impl Lexer {
             self.pos += 1;
         }
 
-        // Перетворюємо зібрані символи у String
         self.input[start..self.pos].iter().collect()
     }
 
