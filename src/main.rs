@@ -1,10 +1,11 @@
+use crate::interpreter::Interpreter;
+use crate::parser::Parser;
 use std::fs::File;
 use std::io::Read;
-use crate::parser::Parser;
 
+mod environment;
+mod interpreter;
 mod parser;
-
-
 // EcmaScript-262 notes
 // 13.2.3 Literals
 // 12.9.4 String Literals
@@ -139,7 +140,6 @@ impl Lexer {
     }
 }
 
-
 fn main() {
     let mut f = File::open("./examples/example.js").unwrap();
     let mut buffer = String::new();
@@ -152,11 +152,17 @@ fn main() {
         println!("{:?}", token);
         let is_eof = token == Token::EOF;
         tokens.push(token);
-        if is_eof { break; }
+        if is_eof {
+            break;
+        }
     }
 
     let mut parser = Parser::new(tokens);
     let program = parser.parse_program();
+    println!("Static Semantics: ---");
+    println!("{:#?}", program.body);
 
-    println!("{:#?}", program.body)
+    println!("EvaluateBody: ---");
+    let mut interpreter = Interpreter::new();
+    interpreter.execute(program.body);
 }

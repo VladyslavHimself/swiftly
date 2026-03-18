@@ -1,4 +1,4 @@
-mod ast;
+pub(crate) mod ast;
 
 use crate::Token;
 use crate::parser::ast::ast::{Expression, Program, Statement};
