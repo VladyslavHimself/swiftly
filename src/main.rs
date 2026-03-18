@@ -1,7 +1,15 @@
 use std::fs::File;
-use std::io::{Read};
+use std::io::Read;
+use crate::parser::Parser;
 
-#[derive(Debug, PartialEq)]
+mod parser;
+
+
+// EcmaScript-262 notes
+// 13.2.3 Literals
+// 12.9.4 String Literals
+
+#[derive(Debug, PartialEq, Clone)]
 enum Token {
     Number(f64), // For numbers (For JS everything is f64) :- 6.1.6.1 The Number Type
     StringLiteral(String), // For string literals :- 12.9.4 String Literals
@@ -16,7 +24,6 @@ enum Token {
     EOF,      // End of file
 }
 
-#[derive(Debug)]
 struct Lexer {
     input: Vec<char>,
     pos: usize,
@@ -132,20 +139,24 @@ impl Lexer {
     }
 }
 
+
 fn main() {
-    let mut f = File::open("../examples/example.js").unwrap();
+    let mut f = File::open("./examples/example.js").unwrap();
     let mut buffer = String::new();
     f.read_to_string(&mut buffer).unwrap();
     let mut lexer: Lexer = Lexer::new(&buffer);
-
-    print!("{:?}", lexer);
+    let mut tokens = Vec::new();
 
     loop {
         let token: Token = lexer.next_token();
         println!("{:?}", token);
-
-        if token == Token::EOF {
-            break;
-        }
+        let is_eof = token == Token::EOF;
+        tokens.push(token);
+        if is_eof { break; }
     }
+
+    let mut parser = Parser::new(tokens);
+    let program = parser.parse_program();
+
+    println!("{:#?}", program.body)
 }
