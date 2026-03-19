@@ -32,6 +32,17 @@ impl Interpreter {
         match expr {
             Expression::Literal(token) => JsValue::from(token),
             Expression::Identifier(name) => self.env.get(&name),
+            Expression::Binary { left, operator, right } => {
+                let left_value = self.evaluate_expression(*left);
+                let right_value = self.evaluate_expression(*right);
+
+                if operator == "+" {
+                    left_value.add(right_value)
+                } else {
+                    JsValue::Undefined
+                }
+            }
         }
     }
 }
+

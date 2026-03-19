@@ -43,3 +43,19 @@ impl From<Token> for JsValue {
        }
    }
 }
+
+impl JsValue {
+
+    // TODO: Add more operators
+    // !Reference to 13.15.3 ApplyStringOrNumericBinaryOperator
+
+    pub fn add(self, other: JsValue) -> JsValue {
+        match (self, other) {
+            (JsValue::Number(a), JsValue::Number(b)) => JsValue::Number(a + b),
+            (JsValue::String(a), JsValue::String(b)) => JsValue::String(format!("{}{}", a, b)),
+            (JsValue::String(a), JsValue::Number(b)) => JsValue::String(format!("{}{}", a, b)),
+            (JsValue::Number(a), JsValue::String(b)) => JsValue::String(format!("{}{}", a, b)),
+            _ => JsValue::Undefined,
+        }
+    }
+}

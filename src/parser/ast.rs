@@ -4,10 +4,15 @@ pub(crate) mod ast {
 
     #[derive(Debug)]
     // 13.3 Binary Operators
-    // Reference to Annex A.2 - Expressions
+    // !Reference to Annex A.2 - Expressions
     pub enum Expression {
         Literal(JsValue),
         Identifier(String),
+        Binary {
+            left: Box<Expression>,
+            operator: String,
+            right: Box<Expression>,
+        }
     }
 
     // Reference to Annex A.3 - Statements
@@ -15,6 +20,7 @@ pub(crate) mod ast {
     pub enum Statement {
         // let <id> = <expr>;
         VariableDeclaration { id: String, init: Expression },
+        // Block(Vec<Statement>),
     }
 
     // Root of the program

@@ -19,6 +19,10 @@ enum Token {
     Assign,      // Operator =
     Semicolon,   // semicolon - ;
 
+    // LCURLBRACE,
+    // RCURLBRACE,
+
+    Plus,     // +
     Equal,    // ==
     Not,      // !
     NotEqual, // !=
@@ -88,10 +92,25 @@ impl Lexer {
                 }
             }
 
+            '+' => {
+                self.pos += 1;
+                Token::Plus
+            }
+
             ';' => {
                 self.pos += 1;
                 Token::Semicolon
             }
+
+            // '{' => {
+            //     self.pos += 1;
+            //     Token::LCURLBRACE
+            // }
+            // '}' => {
+            //     self.pos += 1;
+            //     Token::RCURLBRACE
+            // }
+
             _ => panic!("Unknown character: {}", ch),
         }
     }
