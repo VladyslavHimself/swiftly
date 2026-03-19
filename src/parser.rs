@@ -70,7 +70,7 @@ impl Parser {
         self.pos += 1;
 
         match token {
-            Token::Number(_) | Token::StringLiteral(_) => Expression::Literal(token),
+            Token::Number(_) | Token::StringLiteral(_) => Expression::Literal(token.into()),
             Token::Identifier(name) => Expression::Identifier(name),
             _ => panic!("Expected expression"),
         }

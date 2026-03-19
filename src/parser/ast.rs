@@ -1,10 +1,12 @@
 pub(crate) mod ast {
+    use crate::environment::JsValue;
     use crate::Token;
 
     #[derive(Debug)]
+    // 13.3 Binary Operators
     // Reference to Annex A.2 - Expressions
     pub enum Expression {
-        Literal(Token),
+        Literal(JsValue),
         Identifier(String),
     }
 
