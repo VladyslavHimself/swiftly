@@ -1,6 +1,5 @@
-use crate::environment::Environment;
+use crate::environment::{Environment, JsValue};
 use crate::parser::ast::ast::{Expression, Statement};
-use crate::Token;
 
 pub struct Interpreter {
     env: Environment,
@@ -8,7 +7,9 @@ pub struct Interpreter {
 
 impl Interpreter {
     pub(crate) fn new() -> Self {
-        Self { env: Environment::new() }
+        Self {
+            env: Environment::new(),
+        }
     }
 
     pub(crate) fn execute(&mut self, program: Vec<Statement>) {
@@ -21,19 +22,16 @@ impl Interpreter {
         match stmt {
             Statement::VariableDeclaration { id, init } => {
                 let value = self.evaluate_expression(init);
-                println!("Linking variable '{}' with value {:?}", id, value);
+                println!("Binding variable '{}' with value {:?}", id, value);
                 self.env.define(id, value);
             }
         }
     }
 
-
-    fn evaluate_expression(&self, expr: Expression) -> Token {
+    fn evaluate_expression(&self, expr: Expression) -> JsValue {
         match expr {
-            Expression::Literal(token) => token,
-            Expression::Identifier(name) => {
-                panic!("Variable lookup not implemented yet! :(");
-            }
+            Expression::Literal(token) => JsValue::from(token),
+            Expression::Identifier(name) => self.env.get(&name),
         }
     }
 }

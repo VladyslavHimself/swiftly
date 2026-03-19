@@ -159,7 +159,6 @@ fn main() {
 
     let mut parser = Parser::new(tokens);
     let program = parser.parse_program();
-    println!("Static Semantics: ---");
     println!("{:#?}", program.body);
 
     println!("EvaluateBody: ---");
