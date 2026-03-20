@@ -1,5 +1,5 @@
 use crate::environment::{Environment, JsValue};
-use crate::parser::ast::ast::{Expression, Statement};
+use crate::ast::ast::{Expression, Statement};
 use std::cell::RefCell;
 use std::rc::Rc;
 

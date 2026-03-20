@@ -1,7 +1,5 @@
-pub(crate) mod ast;
-
 use crate::Token;
-use crate::parser::ast::ast::{Expression, Program, Statement};
+use crate::ast::ast::{Expression, Program, Statement};
 
 pub struct Parser {
     tokens: Vec<Token>,

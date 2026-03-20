@@ -10,6 +10,7 @@ mod interpreter;
 pub mod lexer;
 mod parser;
 pub mod tokens;
+pub(crate) mod ast;
 
 fn main() {
     let mut f = File::open("./examples/example.js").unwrap();
