@@ -46,7 +46,6 @@ impl Parser {
                 let expr = self.parse_expression();
                 self.consume(Token::Semicolon);
                 Statement::Expression(expr)
-                // panic!("Unexpected token {:?}", self.peek())
             }
         }
     }
