@@ -19,8 +19,8 @@ enum Token {
     Assign,      // Operator =
     Semicolon,   // semicolon - ;
 
-    // LCURLBRACE,
-    // RCURLBRACE,
+    LCURLBRACE,
+    RCURLBRACE,
 
     Plus,     // +
     Equal,    // ==
@@ -102,14 +102,14 @@ impl Lexer {
                 Token::Semicolon
             }
 
-            // '{' => {
-            //     self.pos += 1;
-            //     Token::LCURLBRACE
-            // }
-            // '}' => {
-            //     self.pos += 1;
-            //     Token::RCURLBRACE
-            // }
+            '{' => {
+                self.pos += 1;
+                Token::LCURLBRACE
+            }
+            '}' => {
+                self.pos += 1;
+                Token::RCURLBRACE
+            }
 
             _ => panic!("Unknown character: {}", ch),
         }
@@ -160,6 +160,7 @@ impl Lexer {
 }
 
 fn main() {
+    let mut x: i8 = 0;
     let mut f = File::open("./examples/example.js").unwrap();
     let mut buffer = String::new();
     f.read_to_string(&mut buffer).unwrap();

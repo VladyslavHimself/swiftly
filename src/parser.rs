@@ -41,22 +41,22 @@ impl Parser {
     fn parse_statement(&mut self) -> Statement {
         match self.peek() {
             Token::Let => self.parse_variable_declaration(),
-            // Token::LCURLBRACE => self.parse_block(),
+            Token::LCURLBRACE => self.parse_block(),
             _ => panic!("Unexpected token {:?}", self.peek()),
         }
     }
 
-    // fn parse_block(&mut self) -> Statement {
-    //     self.consume(Token::LCURLBRACE);
-    //     let mut statements = Vec::new();
-    // 
-    //     while self.peek() != &Token::RCURLBRACE && self.peek() != &Token::EOF {
-    //         statements.push(self.parse_statement());
-    //     }
-    // 
-    //     self.consume(Token::RCURLBRACE);
-    //     Statement::Block(statements)
-    // }
+    fn parse_block(&mut self) -> Statement {
+        self.consume(Token::LCURLBRACE);
+        let mut statements = Vec::new();
+
+        while self.peek() != &Token::RCURLBRACE && self.peek() != &Token::EOF {
+            statements.push(self.parse_statement());
+        }
+
+        self.consume(Token::RCURLBRACE);
+        Statement::Block(statements)
+    }
 
     fn parse_variable_declaration(&mut self) -> Statement {
         self.consume(Token::Let);

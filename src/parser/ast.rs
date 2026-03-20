@@ -1,6 +1,5 @@
 pub(crate) mod ast {
     use crate::environment::JsValue;
-    use crate::Token;
 
     #[derive(Debug)]
     // 13.3 Binary Operators
@@ -20,7 +19,7 @@ pub(crate) mod ast {
     pub enum Statement {
         // let <id> = <expr>;
         VariableDeclaration { id: String, init: Expression },
-        // Block(Vec<Statement>),
+        Block(Vec<Statement>),
     }
 
     // Root of the program

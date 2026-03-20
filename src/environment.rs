@@ -1,5 +1,7 @@
 use crate::Token;
+use std::cell::RefCell;
 use std::collections::HashMap;
+use std::rc::Rc;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum JsValue {
@@ -11,9 +13,10 @@ pub enum JsValue {
     // TODO: Add objects
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Environment {
     variables: HashMap<String, JsValue>,
+    parent: Option<Rc<RefCell<Environment>>>,
 }
 
 impl Environment {
@@ -21,6 +24,14 @@ impl Environment {
     pub(crate) fn new() -> Self {
         Self {
             variables: HashMap::new(),
+            parent: None,
+        }
+    }
+
+    pub fn new_enclosed(parent: Rc<RefCell<Environment>>) -> Self {
+        Self {
+            variables: HashMap::new(),
+            parent: Some(parent),
         }
     }
 
@@ -29,23 +40,32 @@ impl Environment {
     }
 
     pub(crate) fn get(&self, name: &str) -> JsValue {
-        self.variables.get(name).cloned().unwrap_or(JsValue::Undefined)
+        if let Some(value) = self.variables.get(name) {
+            return value.clone();
+        }
+
+        if let Some(ref parent) = self.parent {
+            return parent.borrow().get(name);
+        }
+
+        // TODO: Should be ReferenceError
+        println!("ReferenceError: {} is not defined", name);
+        JsValue::Undefined
     }
 }
 
 impl From<Token> for JsValue {
-   fn from(token: Token) -> Self {
-       match token {
-           Token::Number(n) => JsValue::Number(n),
-           Token::StringLiteral(s) => JsValue::String(s),
-           // TODO: Add more types
-           _ => JsValue::Undefined,
-       }
-   }
+    fn from(token: Token) -> Self {
+        match token {
+            Token::Number(n) => JsValue::Number(n),
+            Token::StringLiteral(s) => JsValue::String(s),
+            // TODO: Add more types
+            _ => JsValue::Undefined,
+        }
+    }
 }
 
 impl JsValue {
-
     // TODO: Add more operators
     // !Reference to 13.15.3 ApplyStringOrNumericBinaryOperator
 
