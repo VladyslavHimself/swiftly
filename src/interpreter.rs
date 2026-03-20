@@ -1,6 +1,6 @@
 use crate::environment::{Environment, JsValue};
 use crate::parser::ast::ast::{Expression, Statement};
-use std::cell::{RefCell};
+use std::cell::RefCell;
 use std::rc::Rc;
 
 pub struct Interpreter {
@@ -27,8 +27,11 @@ impl Interpreter {
                 println!("Binding variable '{}' with value {:?}", id, value);
                 self.env.borrow_mut().define(id, value);
             }
-
             Statement::Block(statements) => self.execute_block(statements),
+            Statement::Expression(expr) => {
+                let value = self.evaluate_expression(expr);
+                println!("Evaluated expression to {:?}", value);
+            }
         }
     }
 
@@ -36,6 +39,16 @@ impl Interpreter {
         match expr {
             Expression::Literal(token) => JsValue::from(token),
             Expression::Identifier(name) => self.env.borrow().get(&name),
+            Expression::Assignment { name, value } => {
+                let value = self.evaluate_expression(*value);
+                let success = self.env.borrow_mut().assign(name.clone(), value.clone());
+
+                if !success {
+                    panic!("ReferenceError: {} is not defined", name.to_string() + " =")
+                }
+
+                value
+            }
             Expression::Binary {
                 left,
                 operator,

@@ -52,6 +52,19 @@ impl Environment {
         println!("ReferenceError: {} is not defined", name);
         JsValue::Undefined
     }
+
+    pub fn assign(&mut self, name: String, value: JsValue) -> bool {
+        if self.variables.contains_key(&name) {
+            self.variables.insert(name, value);
+            return true;
+        }
+
+        if let Some(ref parent) = self.parent {
+            return parent.borrow_mut().assign(name, value);
+        }
+
+        false
+    }
 }
 
 impl From<Token> for JsValue {

@@ -42,7 +42,12 @@ impl Parser {
         match self.peek() {
             Token::Let => self.parse_variable_declaration(),
             Token::LCURLBRACE => self.parse_block(),
-            _ => panic!("Unexpected token {:?}", self.peek()),
+            _ => {
+                let expr = self.parse_expression();
+                self.consume(Token::Semicolon);
+                Statement::Expression(expr)
+                // panic!("Unexpected token {:?}", self.peek())
+            }
         }
     }
 
@@ -91,19 +96,40 @@ impl Parser {
 
     // Prerequisite to A.4 Functions and Classes
     fn parse_expression(&mut self) -> Expression {
-        let mut left = self.parse_primary_expression();
+        let mut left = self.parse_math_expression();
+
+        if self.peek() == &Token::Assign {
+            self.pos += 1;
+
+            let value = self.parse_expression();
+
+            if let Expression::Identifier(name) = left {
+                return Expression::Assignment {
+                    name,
+                    value: Box::new(value),
+                };
+            }
+
+            panic!("Invalid assignment target!");
+        }
+
+        left
+    }
+
+    fn parse_math_expression(&mut self) -> Expression {
+        let mut left_expression = self.parse_primary_expression();
 
         while self.peek() == &Token::Plus {
             self.pos += 1;
             let right = self.parse_primary_expression();
 
-            left = Expression::Binary {
-                left: Box::new(left),
+            left_expression = Expression::Binary {
+                left: Box::new(left_expression),
                 operator: "+".to_string(),
                 right: Box::new(right),
             };
         }
 
-        left
+        left_expression
     }
 }

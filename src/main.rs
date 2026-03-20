@@ -160,7 +160,6 @@ impl Lexer {
 }
 
 fn main() {
-    let mut x: i8 = 0;
     let mut f = File::open("./examples/example.js").unwrap();
     let mut buffer = String::new();
     f.read_to_string(&mut buffer).unwrap();
