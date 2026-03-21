@@ -25,6 +25,11 @@ pub(crate) mod ast {
         VariableDeclaration { id: String, init: Expression },
         Block(Vec<Statement>),
         Expression(Expression),
+        If {
+            condition: Expression,
+            then_branch: Box<Statement>,
+            else_branch: Option<Box<Statement>>,
+        }
     }
 
     // Root of the program

@@ -27,6 +27,11 @@ impl Lexer {
             let word = self.read_identifier();
             return match word.as_str() {
                 "let" => Token::Let,
+                "true" => Token::Boolean(true),
+                "false" => Token::Boolean(false),
+                "if" => Token::If,
+                "else" => Token::Else,
+
                 _ => Token::Identifier(word),
             };
         }
@@ -46,7 +51,7 @@ impl Lexer {
             '=' => {
                 if self.peek() == Some('=') {
                     self.pos += 2;
-                    Token::Equal
+                    Token::EqualityOpEqual
                 } else {
                     self.pos += 1;
                     Token::Assign
@@ -56,10 +61,30 @@ impl Lexer {
             '!' => {
                 if self.peek() == Some('=') {
                     self.pos += 2;
-                    Token::NotEqual
+                    Token::EqualityOpNotEqual
                 } else {
                     self.pos += 1;
                     Token::Not
+                }
+            }
+
+            '>' => {
+                if self.peek() == Some('=') {
+                    self.pos += 2;
+                    Token::RelationOpMoreOrEqual
+                } else {
+                    self.pos += 1;
+                    Token::RelationOpMore
+                }
+            }
+
+            '<' => {
+                if self.peek() == Some('=') {
+                    self.pos += 2;
+                    Token::RelationOpLessOrEqual
+                } else {
+                    self.pos += 1;
+                    Token::RelationOpLess
                 }
             }
 
@@ -71,6 +96,16 @@ impl Lexer {
             ';' => {
                 self.pos += 1;
                 Token::Semicolon
+            }
+
+            '(' => {
+                self.pos += 1;
+                Token::LPARENBRACKET
+            }
+
+            ')' => {
+                self.pos += 1;
+                Token::RPARENBRACKET
             }
 
             '{' => {

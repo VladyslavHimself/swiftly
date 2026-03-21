@@ -1,5 +1,5 @@
-use crate::environment::{Environment, JsValue};
 use crate::ast::ast::{Expression, Statement};
+use crate::environment::{Environment, JsValue};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -32,6 +32,18 @@ impl Interpreter {
                 let value = self.evaluate_expression(expr);
                 println!("Evaluated expression to {:?}", value);
             }
+            Statement::If {
+                condition,
+                then_branch,
+                else_branch,
+            } => {
+                let check = self.evaluate_expression(condition);
+                if check.is_truthy() {
+                   self.evaluate_statement(*then_branch)
+                } else if let Some(else_branch) = else_branch {
+                    self.evaluate_statement(*else_branch)
+                }
+            }
         }
     }
 
@@ -57,11 +69,17 @@ impl Interpreter {
                 let left_value = self.evaluate_expression(*left);
                 let right_value = self.evaluate_expression(*right);
 
-                if operator == "+" {
-                    left_value.add(right_value)
-                } else {
-                    JsValue::Undefined
+                match operator.as_str() {
+                    "+" => left_value.add(right_value),
+                    "RelationOpMore" => left_value.compare(&right_value, "RelationOpMore"),
+                    "RelationOpMoreOrEqual" => left_value.compare(&right_value, "RelationOpMoreOrEqual"),
+                    "RelationOpLess" => left_value.compare(&right_value, "RelationOpLess"),
+                    "RelationOpLessOrEqual" => left_value.compare(&right_value, "RelationOpLessOrEqual"),
+                    "EqualityOpEqual" => left_value.compare(&right_value, "EqualityOpEqual"),
+                    "EqualityOpNotEqual" => left_value.compare(&right_value, "EqualityOpNotEqual"),
+                    _ => panic!("Unknown operator: {}", operator),
                 }
+
             }
         }
     }

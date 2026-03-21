@@ -40,11 +40,33 @@ impl Parser {
         match self.peek() {
             Token::Let => self.parse_variable_declaration(),
             Token::LCURLBRACE => self.parse_block(),
+            Token::If => self.parse_if_statement(),
             _ => {
                 let expr = self.parse_expression();
                 self.consume(Token::Semicolon);
                 Statement::Expression(expr)
             }
+        }
+    }
+
+    fn parse_if_statement(&mut self) -> Statement {
+        self.consume(Token::If);
+        self.consume(Token::LPARENBRACKET);
+        let condition = self.parse_expression();
+        self.consume(Token::RPARENBRACKET);
+
+        let then_branch = Box::new(self.parse_statement());
+        let mut else_branch = None;
+
+        if self.peek() == &Token::Else {
+            self.pos += 1;
+            else_branch = Some(Box::new(self.parse_statement()));
+        }
+
+        Statement::If {
+            condition,
+            then_branch,
+            else_branch,
         }
     }
 
@@ -93,14 +115,13 @@ impl Parser {
 
     // Prerequisite to A.4 Functions and Classes
     fn parse_expression(&mut self) -> Expression {
-        let mut left = self.parse_math_expression();
+        let expr = self.parse_relational_expression();
 
         if self.peek() == &Token::Assign {
             self.pos += 1;
 
             let value = self.parse_expression();
-
-            if let Expression::Identifier(name) = left {
+            if let Expression::Identifier(name) = expr {
                 return Expression::Assignment {
                     name,
                     value: Box::new(value),
@@ -110,6 +131,29 @@ impl Parser {
             panic!("Invalid assignment target!");
         }
 
+        expr
+    }
+
+    fn parse_relational_expression(&mut self) -> Expression {
+        let mut left = self.parse_math_expression();
+
+        while matches!(
+            self.peek(),
+            Token::RelationOpMore
+                | Token::RelationOpMoreOrEqual
+                | Token::RelationOpLess
+                | Token::RelationOpLessOrEqual
+                | Token::EqualityOpEqual
+        ) {
+            let operator = format!("{:?}", self.peek()); // Тимчасово для простоти
+            self.pos += 1;
+            let right = self.parse_math_expression();
+            left = Expression::Binary {
+                left: Box::new(left),
+                operator,
+                right: Box::new(right),
+            };
+        }
         left
     }
 
