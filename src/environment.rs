@@ -132,4 +132,23 @@ impl JsValue {
             },
         }
     }
+
+    pub fn binary_op(self, other: JsValue, op: &str) -> JsValue {
+        match (self, other) {
+            (JsValue::Number(a), JsValue::Number(b)) => {
+                match op {
+                    "Plus" => JsValue::Number(a + b),
+                    "Minus" => JsValue::Number(a - b),
+                    "Star" => JsValue::Number(a * b),
+                    "Slash" => {
+                        if b == 0.0 { JsValue::Number(f64::INFINITY) }
+                        else { JsValue::Number(a / b) }
+                    },
+                    "Percent" => JsValue::Number(a % b),
+                    _ => JsValue::Undefined,
+                }
+            },
+            _ => JsValue::Undefined,
+        }
+    }
 }

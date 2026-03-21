@@ -54,6 +54,7 @@ impl Interpreter {
 
     fn evaluate_expression(&self, expr: Expression) -> JsValue {
         match expr {
+            // Expression::Unary => JsValue::Number(0 as f64),
             Expression::Literal(token) => JsValue::from(token),
             Expression::Identifier(name) => self.env.borrow().get(&name),
             Expression::Assignment { name, value } => {
@@ -75,8 +76,11 @@ impl Interpreter {
                 let right_value = self.evaluate_expression(*right);
 
                 match operator.as_str() {
-                    "+" => left_value.add(right_value),
-                    "-" => left_value.substract(right_value),
+                    "+" | "Plus" => left_value.add(right_value),
+                    "-" | "Minus" => left_value.substract(right_value),
+                    "*" | "Star" => left_value.binary_op(right_value, "Star"),
+                    "/" | "Slash" => left_value.binary_op(right_value, "Slash"),
+                    "%" | "Percent" => left_value.binary_op(right_value, "Percent"),
                     "RelationOpMore" => left_value.compare(&right_value, "RelationOpMore"),
                     "RelationOpMoreOrEqual" => left_value.compare(&right_value, "RelationOpMoreOrEqual"),
                     "RelationOpLess" => left_value.compare(&right_value, "RelationOpLess"),

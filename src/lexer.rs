@@ -99,6 +99,22 @@ impl Lexer {
                 Token::Minus
             }
 
+            '*' => {
+                self.pos += 1;
+                Token::Star
+            }
+
+            '/' => {
+                // TODO: Add support for comments
+                self.pos += 1;
+                Token::Slash
+            }
+
+            '%' => {
+                self.pos += 1;
+                Token::Percent
+            }
+
             ';' => {
                 self.pos += 1;
                 Token::Semicolon

@@ -25,6 +25,9 @@ pub enum Token {
     Not,  // !
     Plus, // +
     Minus, // -
+    Star, // *
+    Slash, // /
+    Percent, // %
 
     // 13.11 Equality Operators
     EqualityOpEqual,    // ==

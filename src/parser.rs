@@ -50,7 +50,6 @@ impl Parser {
         }
     }
 
-
     fn parse_while_statement(&mut self) -> Statement {
         self.consume(Token::While);
         self.consume(Token::LPARENBRACKET);
@@ -121,7 +120,17 @@ impl Parser {
         match token {
             Token::Number(_) | Token::StringLiteral(_) => Expression::Literal(token.into()),
             Token::Identifier(name) => Expression::Identifier(name),
-            _ => panic!("Expected expression"),
+            Token::LPARENBRACKET => {
+                let expr = self.parse_expression();
+
+                if self.peek() == &Token::RPARENBRACKET {
+                    self.pos += 1;
+                    expr
+                } else {
+                    panic!("Expected ')' after expression");
+                }
+            }
+            _ => panic!("Expected expression, but got {:?}", self.peek()),
         }
     }
 
@@ -147,7 +156,7 @@ impl Parser {
     }
 
     fn parse_relational_expression(&mut self) -> Expression {
-        let mut left = self.parse_math_expression();
+        let mut left = self.parse_additive_expression();
 
         while matches!(
             self.peek(),
@@ -159,7 +168,7 @@ impl Parser {
         ) {
             let operator = format!("{:?}", self.peek()); // Тимчасово для простоти
             self.pos += 1;
-            let right = self.parse_math_expression();
+            let right = self.parse_additive_expression();
             left = Expression::Binary {
                 left: Box::new(left),
                 operator,
@@ -169,32 +178,38 @@ impl Parser {
         left
     }
 
-    fn parse_math_expression(&mut self) -> Expression {
-        let mut left_expression = self.parse_primary_expression();
+    fn parse_additive_expression(&mut self) -> Expression {
+        let mut left_expression = self.parse_multiplicative_expression();
 
-
-        while self.peek() == &Token::Minus {
+        while self.peek() == &Token::Plus || self.peek() == &Token::Minus {
+            let operator = if self.peek() == &Token::Plus { "+" } else { "-" }.to_string();
             self.pos += 1;
-            let right = self.parse_primary_expression();
+
+            let right = self.parse_multiplicative_expression();
 
             left_expression = Expression::Binary {
                 left: Box::new(left_expression),
-                operator: "-".to_string(),
-                right: Box::new(right),
-            }
-        }
-
-        while self.peek() == &Token::Plus {
-            self.pos += 1;
-            let right = self.parse_primary_expression();
-
-            left_expression = Expression::Binary {
-                left: Box::new(left_expression),
-                operator: "+".to_string(),
+                operator,
                 right: Box::new(right),
             };
         }
 
         left_expression
+    }
+
+    fn parse_multiplicative_expression(&mut self) -> Expression {
+        let mut left = self.parse_primary_expression();
+
+        while matches!(self.peek(), Token::Star | Token::Slash | Token::Percent) {
+            let op = format!("{:?}", self.peek());
+            self.pos += 1;
+            let right = self.parse_primary_expression();
+            left = Expression::Binary {
+                left: Box::new(left),
+                operator: op,
+                right: Box::new(right),
+            };
+        }
+        left
     }
 }
