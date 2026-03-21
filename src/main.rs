@@ -11,6 +11,7 @@ pub mod lexer;
 mod parser;
 pub mod tokens;
 pub(crate) mod ast;
+pub mod JsValue;
 
 fn main() {
     let mut f = File::open("./examples/example.js").unwrap();
