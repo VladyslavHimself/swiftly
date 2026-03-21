@@ -19,6 +19,7 @@ fn main() {
     let mut lexer: Lexer = Lexer::new(&buffer);
     let mut tokens = Vec::new();
 
+    println!("[Swiftly-Info]: Lexing tokens...");
     loop {
         let token: Token = lexer.next_token();
         println!("{:?}", token);
@@ -29,11 +30,12 @@ fn main() {
         }
     }
 
+    println!("[Swiftly-Info]: Parsing program...");
     let mut parser = Parser::new(tokens);
     let program = parser.parse_program();
     println!("{:#?}", program.body);
 
-    println!("EvaluateBody: ---");
+    println!("[Swiftly-Info]: Evaluating...");
     let mut interpreter = Interpreter::new();
     interpreter.execute(program.body);
 }
