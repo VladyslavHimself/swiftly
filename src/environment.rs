@@ -93,7 +93,9 @@ impl JsValue {
                     _ => false,
                 };
                 JsValue::Boolean(res)
-            }
+            },
+
+            (JsValue::String(a), JsValue::String(b)) => JsValue::Boolean(a == b),
             _ => JsValue::Boolean(false), // SIMPLIFICATED!
         }
     }
