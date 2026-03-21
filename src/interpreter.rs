@@ -76,6 +76,7 @@ impl Interpreter {
 
                 match operator.as_str() {
                     "+" => left_value.add(right_value),
+                    "-" => left_value.substract(right_value),
                     "RelationOpMore" => left_value.compare(&right_value, "RelationOpMore"),
                     "RelationOpMoreOrEqual" => left_value.compare(&right_value, "RelationOpMoreOrEqual"),
                     "RelationOpLess" => left_value.compare(&right_value, "RelationOpLess"),

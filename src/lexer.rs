@@ -94,6 +94,11 @@ impl Lexer {
                 Token::Plus
             }
 
+            '-' => {
+                self.pos += 1;
+                Token::Minus
+            }
+
             ';' => {
                 self.pos += 1;
                 Token::Semicolon

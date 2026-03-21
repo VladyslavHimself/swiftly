@@ -122,4 +122,14 @@ impl JsValue {
             _ => JsValue::Undefined,
         }
     }
+
+    pub fn substract(self, other: JsValue) -> JsValue {
+        match (self, other) {
+            (JsValue::Number(a), JsValue::Number(b)) => JsValue::Number(a - b),
+            _ => {
+                println!("TypeError: Cannot substract from a non-number value!");
+                JsValue::Undefined
+            },
+        }
+    }
 }

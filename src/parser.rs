@@ -172,6 +172,18 @@ impl Parser {
     fn parse_math_expression(&mut self) -> Expression {
         let mut left_expression = self.parse_primary_expression();
 
+
+        while self.peek() == &Token::Minus {
+            self.pos += 1;
+            let right = self.parse_primary_expression();
+
+            left_expression = Expression::Binary {
+                left: Box::new(left_expression),
+                operator: "-".to_string(),
+                right: Box::new(right),
+            }
+        }
+
         while self.peek() == &Token::Plus {
             self.pos += 1;
             let right = self.parse_primary_expression();
