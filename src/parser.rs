@@ -198,12 +198,12 @@ impl Parser {
     }
 
     fn parse_multiplicative_expression(&mut self) -> Expression {
-        let mut left = self.parse_primary_expression();
+        let mut left = self.parse_unary_expression();
 
         while matches!(self.peek(), Token::Star | Token::Slash | Token::Percent) {
             let op = format!("{:?}", self.peek());
             self.pos += 1;
-            let right = self.parse_primary_expression();
+            let right = self.parse_unary_expression();
             left = Expression::Binary {
                 left: Box::new(left),
                 operator: op,
@@ -211,5 +211,21 @@ impl Parser {
             };
         }
         left
+    }
+
+    fn parse_unary_expression(&mut self) -> Expression {
+
+        if matches!(self.peek(), Token::Minus | Token::Not) {
+            let op = format!("{:?}", self.peek());
+            self.pos += 1;
+            // Рекурсивно кличемо parse_unary_expression, щоб обробити --5
+            let right = self.parse_unary_expression();
+            return Expression::Unary {
+                operator: op,
+                operand: Box::new(right),
+            };
+        }
+
+        self.parse_primary_expression()
     }
 }

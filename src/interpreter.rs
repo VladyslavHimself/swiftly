@@ -91,7 +91,21 @@ impl Interpreter {
                 }
 
             }
+
+            Expression::Unary { operator, operand } => {
+                let right_val = self.evaluate_expression(*operand);
+
+                match operator.as_str() {
+                    "Minus" => match right_val {
+                        JsValue::Number(n) => JsValue::Number(-n),
+                        _ => JsValue::Undefined, // TODO: Add NaN (As referenced in Ecma Spec)
+                    },
+                    "Not" => JsValue::Boolean(!right_val.is_truthy()),
+                    _ => panic!("Unknown unary operator: {}", operator),
+                }
+            }
         }
+
     }
 
     fn execute_block(&mut self, statements: Vec<Statement>) {

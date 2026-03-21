@@ -16,6 +16,10 @@ pub(crate) mod ast {
             operator: String,
             right: Box<Expression>,
         },
+        Unary {
+            operator: String,
+            operand: Box<Expression>,
+        }
     }
 
     // Reference to Annex A.3 - Statements
