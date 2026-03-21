@@ -11,6 +11,7 @@ pub enum Token {
     Let, // "let" keyword
     If,  // "if" keyword
     Else, // "else" keyword
+    While, // "while" keyword
 
     Assign,    // Operator =
     Semicolon, // semicolon - ;

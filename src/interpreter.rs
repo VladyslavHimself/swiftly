@@ -43,6 +43,11 @@ impl Interpreter {
                 } else if let Some(else_branch) = else_branch {
                     self.evaluate_statement(*else_branch)
                 }
+            },
+            Statement::While { condition, body } => {
+                while self.evaluate_expression(condition.clone()).is_truthy() {
+                    self.evaluate_statement(*body.clone())
+                }
             }
         }
     }

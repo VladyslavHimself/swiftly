@@ -31,6 +31,7 @@ impl Lexer {
                 "false" => Token::Boolean(false),
                 "if" => Token::If,
                 "else" => Token::Else,
+                "while" => Token::While,
 
                 _ => Token::Identifier(word),
             };

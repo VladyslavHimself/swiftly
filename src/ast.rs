@@ -1,7 +1,7 @@
 pub(crate) mod ast {
     use crate::environment::JsValue;
 
-    #[derive(Debug)]
+    #[derive(Debug, Clone)]
     // 13.3 Binary Operators
     // !Reference to Annex A.2 - Expressions
     pub enum Expression {
@@ -20,7 +20,8 @@ pub(crate) mod ast {
 
     // Reference to Annex A.3 - Statements
     #[derive(Debug)]
-    pub enum Statement {
+    #[derive(Clone)]
+pub enum Statement {
         // let <id> = <expr>;
         VariableDeclaration { id: String, init: Expression },
         Block(Vec<Statement>),
@@ -29,6 +30,10 @@ pub(crate) mod ast {
             condition: Expression,
             then_branch: Box<Statement>,
             else_branch: Option<Box<Statement>>,
+        },
+        While {
+            condition: Expression,
+            body: Box<Statement>,
         }
     }
 

@@ -41,12 +41,24 @@ impl Parser {
             Token::Let => self.parse_variable_declaration(),
             Token::LCURLBRACE => self.parse_block(),
             Token::If => self.parse_if_statement(),
+            Token::While => self.parse_while_statement(),
             _ => {
                 let expr = self.parse_expression();
                 self.consume(Token::Semicolon);
                 Statement::Expression(expr)
             }
         }
+    }
+
+
+    fn parse_while_statement(&mut self) -> Statement {
+        self.consume(Token::While);
+        self.consume(Token::LPARENBRACKET);
+        let condition = self.parse_expression();
+        self.consume(Token::RPARENBRACKET);
+
+        let body = Box::new(self.parse_statement());
+        Statement::While { condition, body }
     }
 
     fn parse_if_statement(&mut self) -> Statement {
