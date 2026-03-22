@@ -4,6 +4,7 @@ use crate::js_object::JsObject;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+
 pub struct Interpreter {
     env: Rc<RefCell<Environment>>,
     pub object_prototype: Rc<RefCell<JsObject>>,
