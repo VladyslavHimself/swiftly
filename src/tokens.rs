@@ -2,42 +2,54 @@
 // 13.2.3 Literals
 // 12.9.4 String Literals
 #[derive(Debug, PartialEq, Clone)]
+
 pub enum Token {
-    Number(f64),   // For numbers (For JS everything is f64) :- 6.1.6.1 The Number Type
-    Boolean(bool), // For booleans :- 6.1.3 The Boolean Type
-    StringLiteral(String), // For string literals :- 12.9.4 String Literals
-    Identifier(String), // identifiers names for vars and functions :- BindingIdentifier
+    Literal(Literal),
+    Identifier(String),
+    Keyword(Keyword),
+    Operator(Operator),
+    Punctuation(Punctuation),
+    EOF,
+}
 
-    Let, // "let" keyword
-    If,  // "if" keyword
-    Else, // "else" keyword
-    While, // "while" keyword
+#[derive(Debug, PartialEq, Clone)]
+pub enum Literal {
+    JNumber(f64),
+    JBoolean(bool),
+    JString(String),
+}
 
-    Assign,    // Operator =
-    Semicolon, // semicolon - ;
+#[derive(Debug, PartialEq, Clone)]
+pub enum Keyword {
+    Let,
+    If,
+    Else,
+    While,
+}
 
-    LCURLBRACE,
-    RCURLBRACE,
+#[derive(Debug, PartialEq, Clone)]
+pub enum Punctuation {
+    Semicolon,
+    LBrace,
+    RBrace,
+    LParen,
+    RParen,
+}
 
-    LPARENBRACKET, // (
-    RPARENBRACKET, // )
-
-    Not,  // !
-    Plus, // +
-    Minus, // -
-    Star, // *
-    Slash, // /
-    Percent, // %
-
-    // 13.11 Equality Operators
-    EqualityOpEqual,    // ==
-    EqualityOpNotEqual, // !=
-
-    RelationOpMore,        // >
-    RelationOpLess,        // <
-    RelationOpMoreOrEqual, // >=
-    RelationOpLessOrEqual, // <=
-    RelationOpIn,          // in // not implemented -<
-
-    EOF, // End of file
+#[derive(Clone, Debug, PartialEq)]
+pub enum Operator {
+    Assign,
+    Plus,
+    Minus,
+    Star,
+    Slash,
+    Percent,
+    Not,
+    Equal,
+    NotEqual,
+    Less,
+    LessOrEqual,
+    Greater,
+    GreaterOrEqual,
+    In,
 }

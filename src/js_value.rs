@@ -1,3 +1,4 @@
+use crate::tokens::Literal::{JNumber, JString};
 use crate::tokens::Token;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -11,8 +12,8 @@ pub enum JsValue {
 impl From<Token> for JsValue {
     fn from(token: Token) -> Self {
         match token {
-            Token::Number(n) => JsValue::Number(n),
-            Token::StringLiteral(s) => JsValue::String(s),
+            Token::Literal(JNumber(n)) => JsValue::Number(n),
+            Token::Literal(JString(s)) => JsValue::String(s),
             // TODO: Add more types
             _ => JsValue::Undefined,
         }
@@ -26,12 +27,12 @@ impl JsValue {
         match (self, other) {
             (JsValue::Number(a), JsValue::Number(b)) => {
                 let res = match op {
-                    "RelationOpMore" => a > b,
-                    "RelationOpMoreOrEqual" => a >= b,
-                    "RelationOpLess" => a < b,
-                    "RelationOpLessOrEqual" => a <= b,
-                    "EqualityOpEqual" => a == b,
-                    "EqualityOpNotEqual" => a != b,
+                    "Greater" => a > b,
+                    "GreaterOrEqual" => a >= b,
+                    "Less" => a < b,
+                    "LessOrEqual" => a <= b,
+                    "Equal" => a == b,
+                    "NotEqual" => a != b,
                     _ => false,
                 };
                 JsValue::Boolean(res)

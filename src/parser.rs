@@ -1,5 +1,12 @@
 use crate::Token;
 use crate::ast::ast::{Expression, Program, Statement};
+use crate::tokens::Keyword::{Else, If, Let, While};
+use crate::tokens::Literal::{JNumber, JString};
+use crate::tokens::Operator::{
+    Assign, Equal, Greater, GreaterOrEqual, Less, LessOrEqual, Minus, Not, Percent, Plus, Slash,
+    Star,
+};
+use crate::tokens::Punctuation::{LBrace, LParen, RBrace, RParen, Semicolon};
 
 pub struct Parser {
     tokens: Vec<Token>,
@@ -38,38 +45,38 @@ impl Parser {
 
     fn parse_statement(&mut self) -> Statement {
         match self.peek() {
-            Token::Let => self.parse_variable_declaration(),
-            Token::LCURLBRACE => self.parse_block(),
-            Token::If => self.parse_if_statement(),
-            Token::While => self.parse_while_statement(),
+            Token::Keyword(Let) => self.parse_variable_declaration(),
+            Token::Punctuation(LBrace) => self.parse_block(),
+            Token::Keyword(If) => self.parse_if_statement(),
+            Token::Keyword(While) => self.parse_while_statement(),
             _ => {
                 let expr = self.parse_expression();
-                self.consume(Token::Semicolon);
+                self.consume(Token::Punctuation(Semicolon));
                 Statement::Expression(expr)
             }
         }
     }
 
     fn parse_while_statement(&mut self) -> Statement {
-        self.consume(Token::While);
-        self.consume(Token::LPARENBRACKET);
+        self.consume(Token::Keyword(While));
+        self.consume(Token::Punctuation(LParen));
         let condition = self.parse_expression();
-        self.consume(Token::RPARENBRACKET);
+        self.consume(Token::Punctuation(RParen));
 
         let body = Box::new(self.parse_statement());
         Statement::While { condition, body }
     }
 
     fn parse_if_statement(&mut self) -> Statement {
-        self.consume(Token::If);
-        self.consume(Token::LPARENBRACKET);
+        self.consume(Token::Keyword(If));
+        self.consume(Token::Punctuation(LParen));
         let condition = self.parse_expression();
-        self.consume(Token::RPARENBRACKET);
+        self.consume(Token::Punctuation(RParen));
 
         let then_branch = Box::new(self.parse_statement());
         let mut else_branch = None;
 
-        if self.peek() == &Token::Else {
+        if self.peek() == &Token::Keyword(Else) {
             self.pos += 1;
             else_branch = Some(Box::new(self.parse_statement()));
         }
@@ -82,19 +89,19 @@ impl Parser {
     }
 
     fn parse_block(&mut self) -> Statement {
-        self.consume(Token::LCURLBRACE);
+        self.consume(Token::Punctuation(LBrace));
         let mut statements = Vec::new();
 
-        while self.peek() != &Token::RCURLBRACE && self.peek() != &Token::EOF {
+        while self.peek() != &Token::Punctuation(RBrace) && self.peek() != &Token::EOF {
             statements.push(self.parse_statement());
         }
 
-        self.consume(Token::RCURLBRACE);
+        self.consume(Token::Punctuation(RBrace));
         Statement::Block(statements)
     }
 
     fn parse_variable_declaration(&mut self) -> Statement {
-        self.consume(Token::Let);
+        self.consume(Token::Keyword(Let));
 
         let id = if let Token::Identifier(name) = self.peek().clone() {
             self.pos += 1;
@@ -104,11 +111,11 @@ impl Parser {
             panic!("Expected identifier after let");
         };
 
-        self.consume(Token::Assign);
+        self.consume(Token::Operator(Assign));
 
         let init = self.parse_expression();
 
-        self.consume(Token::Semicolon);
+        self.consume(Token::Punctuation(Semicolon));
 
         Statement::VariableDeclaration { id, init }
     }
@@ -118,12 +125,14 @@ impl Parser {
         self.pos += 1;
 
         match token {
-            Token::Number(_) | Token::StringLiteral(_) => Expression::Literal(token.into()),
+            Token::Literal(JNumber(_)) | Token::Literal(JString(_)) => {
+                Expression::Literal(token.into())
+            }
             Token::Identifier(name) => Expression::Identifier(name),
-            Token::LPARENBRACKET => {
+            Token::Punctuation(LParen) => {
                 let expr = self.parse_expression();
 
-                if self.peek() == &Token::RPARENBRACKET {
+                if self.peek() == &Token::Punctuation(RParen) {
                     self.pos += 1;
                     expr
                 } else {
@@ -138,7 +147,7 @@ impl Parser {
     fn parse_expression(&mut self) -> Expression {
         let expr = self.parse_relational_expression();
 
-        if self.peek() == &Token::Assign {
+        if self.peek() == &Token::Operator(Assign) {
             self.pos += 1;
 
             let value = self.parse_expression();
@@ -160,11 +169,11 @@ impl Parser {
 
         while matches!(
             self.peek(),
-            Token::RelationOpMore
-                | Token::RelationOpMoreOrEqual
-                | Token::RelationOpLess
-                | Token::RelationOpLessOrEqual
-                | Token::EqualityOpEqual
+            Token::Operator(Greater)
+                | Token::Operator(GreaterOrEqual)
+                | Token::Operator(Less)
+                | Token::Operator(LessOrEqual)
+                | Token::Operator(Equal)
         ) {
             let operator = format!("{:?}", self.peek()); // Тимчасово для простоти
             self.pos += 1;
@@ -181,8 +190,13 @@ impl Parser {
     fn parse_additive_expression(&mut self) -> Expression {
         let mut left_expression = self.parse_multiplicative_expression();
 
-        while self.peek() == &Token::Plus || self.peek() == &Token::Minus {
-            let operator = if self.peek() == &Token::Plus { "+" } else { "-" }.to_string();
+        while self.peek() == &Token::Operator(Plus) || self.peek() == &Token::Operator(Minus) {
+            let operator = if self.peek() == &Token::Operator(Plus) {
+                "+"
+            } else {
+                "-"
+            }
+            .to_string();
             self.pos += 1;
 
             let right = self.parse_multiplicative_expression();
@@ -200,7 +214,10 @@ impl Parser {
     fn parse_multiplicative_expression(&mut self) -> Expression {
         let mut left = self.parse_unary_expression();
 
-        while matches!(self.peek(), Token::Star | Token::Slash | Token::Percent) {
+        while matches!(
+            self.peek(),
+            Token::Operator(Star) | Token::Operator(Slash) | Token::Operator(Percent)
+        ) {
             let op = format!("{:?}", self.peek());
             self.pos += 1;
             let right = self.parse_unary_expression();
@@ -214,11 +231,11 @@ impl Parser {
     }
 
     fn parse_unary_expression(&mut self) -> Expression {
-
-        if matches!(self.peek(), Token::Minus | Token::Not) {
+        if matches!(self.peek(), Token::Operator(Minus) | Token::Operator(Not)) {
             let op = format!("{:?}", self.peek());
             self.pos += 1;
-            // Рекурсивно кличемо parse_unary_expression, щоб обробити --5
+            // TODO: Рекурсивно кличемо parse_unary_expression, щоб обробити --5 UPD: (має бути помилка)
+            // TODO: Should be: Uncaught SyntaxError: Invalid left-hand side expression in prefix operation
             let right = self.parse_unary_expression();
             return Expression::Unary {
                 operator: op,

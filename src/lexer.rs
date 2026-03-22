@@ -1,4 +1,11 @@
 use crate::Token;
+use crate::tokens::Keyword::{Else, If, Let, While};
+use crate::tokens::Literal::{JBoolean, JNumber, JString};
+use crate::tokens::Operator::{
+    Assign, Equal, Greater, GreaterOrEqual, Less, LessOrEqual, Minus, Not, NotEqual, Percent, Plus,
+    Slash, Star,
+};
+use crate::tokens::Punctuation::{LBrace, LParen, RBrace, RParen, Semicolon};
 
 pub struct Lexer {
     input: Vec<char>,
@@ -26,117 +33,117 @@ impl Lexer {
         if ch.is_alphabetic() {
             let word = self.read_identifier();
             return match word.as_str() {
-                "let" => Token::Let,
-                "true" => Token::Boolean(true),
-                "false" => Token::Boolean(false),
-                "if" => Token::If,
-                "else" => Token::Else,
-                "while" => Token::While,
+                "let" => Token::Keyword(Let),
+                "true" => Token::Literal(JBoolean(true)),
+                "false" => Token::Literal(JBoolean(false)),
+                "if" => Token::Keyword(If),
+                "else" => Token::Keyword(Else),
+                "while" => Token::Keyword(While),
 
                 _ => Token::Identifier(word),
             };
         }
 
         if ch.is_numeric() {
-            return Token::Number(self.read_number());
+            return Token::Literal(JNumber(self.read_number()));
         }
 
         if ch == '"' {
             self.pos += 1;
             let value = self.read_string_value();
             self.pos += 1;
-            return Token::StringLiteral(value);
+            return Token::Literal(JString(value));
         }
 
         match ch {
             '=' => {
                 if self.peek() == Some('=') {
                     self.pos += 2;
-                    Token::EqualityOpEqual
+                    Token::Operator(Equal)
                 } else {
                     self.pos += 1;
-                    Token::Assign
+                    Token::Operator(Assign)
                 }
             }
 
             '!' => {
                 if self.peek() == Some('=') {
                     self.pos += 2;
-                    Token::EqualityOpNotEqual
+                    Token::Operator(NotEqual)
                 } else {
                     self.pos += 1;
-                    Token::Not
+                    Token::Operator(Not)
                 }
             }
 
             '>' => {
                 if self.peek() == Some('=') {
                     self.pos += 2;
-                    Token::RelationOpMoreOrEqual
+                    Token::Operator(GreaterOrEqual)
                 } else {
                     self.pos += 1;
-                    Token::RelationOpMore
+                    Token::Operator(Greater)
                 }
             }
 
             '<' => {
                 if self.peek() == Some('=') {
                     self.pos += 2;
-                    Token::RelationOpLessOrEqual
+                    Token::Operator(LessOrEqual)
                 } else {
                     self.pos += 1;
-                    Token::RelationOpLess
+                    Token::Operator(Less)
                 }
             }
 
             '+' => {
                 self.pos += 1;
-                Token::Plus
+                Token::Operator(Plus)
             }
 
             '-' => {
                 self.pos += 1;
-                Token::Minus
+                Token::Operator(Minus)
             }
 
             '*' => {
                 self.pos += 1;
-                Token::Star
+                Token::Operator(Star)
             }
 
             '/' => {
                 // TODO: Add support for comments
                 self.pos += 1;
-                Token::Slash
+                Token::Operator(Slash)
             }
 
             '%' => {
                 self.pos += 1;
-                Token::Percent
+                Token::Operator(Percent)
             }
 
             ';' => {
                 self.pos += 1;
-                Token::Semicolon
+                Token::Punctuation(Semicolon)
             }
 
             '(' => {
                 self.pos += 1;
-                Token::LPARENBRACKET
+                Token::Punctuation(LParen)
             }
 
             ')' => {
                 self.pos += 1;
-                Token::RPARENBRACKET
+                Token::Punctuation(RParen)
             }
 
             '{' => {
                 self.pos += 1;
-                Token::LCURLBRACE
+                Token::Punctuation(LBrace)
             }
             '}' => {
                 self.pos += 1;
-                Token::RCURLBRACE
+                Token::Punctuation(RBrace)
             }
 
             _ => panic!("Unknown character: {}", ch),

@@ -1,5 +1,7 @@
 use crate::ast::ast::{Expression, Statement};
 use crate::environment::{Environment, JsValue};
+use crate::tokens::Operator::Star;
+use crate::tokens::Token;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -39,11 +41,11 @@ impl Interpreter {
             } => {
                 let check = self.evaluate_expression(condition);
                 if check.is_truthy() {
-                   self.evaluate_statement(*then_branch)
+                    self.evaluate_statement(*then_branch)
                 } else if let Some(else_branch) = else_branch {
                     self.evaluate_statement(*else_branch)
                 }
-            },
+            }
             Statement::While { condition, body } => {
                 while self.evaluate_expression(condition.clone()).is_truthy() {
                     self.evaluate_statement(*body.clone())
@@ -54,7 +56,6 @@ impl Interpreter {
 
     fn evaluate_expression(&self, expr: Expression) -> JsValue {
         match expr {
-            // Expression::Unary => JsValue::Number(0 as f64),
             Expression::Literal(token) => JsValue::from(token),
             Expression::Identifier(name) => self.env.borrow().get(&name),
             Expression::Assignment { name, value } => {
@@ -76,27 +77,26 @@ impl Interpreter {
                 let right_value = self.evaluate_expression(*right);
 
                 match operator.as_str() {
-                    "+" | "Plus" => left_value.add(right_value),
-                    "-" | "Minus" => left_value.substract(right_value),
-                    "*" | "Star" => left_value.binary_op(right_value, "Star"),
-                    "/" | "Slash" => left_value.binary_op(right_value, "Slash"),
-                    "%" | "Percent" => left_value.binary_op(right_value, "Percent"),
-                    "RelationOpMore" => left_value.compare(&right_value, "RelationOpMore"),
-                    "RelationOpMoreOrEqual" => left_value.compare(&right_value, "RelationOpMoreOrEqual"),
-                    "RelationOpLess" => left_value.compare(&right_value, "RelationOpLess"),
-                    "RelationOpLessOrEqual" => left_value.compare(&right_value, "RelationOpLessOrEqual"),
-                    "EqualityOpEqual" => left_value.compare(&right_value, "EqualityOpEqual"),
-                    "EqualityOpNotEqual" => left_value.compare(&right_value, "EqualityOpNotEqual"),
+                    "+" | "Operator(Plus)" => left_value.add(right_value),
+                    "-" | "Operator(Minus)" => left_value.substract(right_value),
+                    "*" | "Operator(Star)" => left_value.binary_op(right_value, "Star"),
+                    "/" | "Operator(Slash)" => left_value.binary_op(right_value, "Slash"),
+                    "%" | "Operator(Percent)" => left_value.binary_op(right_value, "Percent"),
+                    "Operator(Greater)" => left_value.compare(&right_value, "Greater"),
+                    "Operator(GreaterOrEqual)" => left_value.compare(&right_value, "GreaterOrEqual"),
+                    "Operator(Less)" => left_value.compare(&right_value, "Less"),
+                    "Operator(LessOrEqual)" => left_value.compare(&right_value, "LessOrEqual"),
+                    "Operator(Equal)" => left_value.compare(&right_value, "Equal"),
+                    "Operator(NotEqual)" => left_value.compare(&right_value, "NotEqual"),
                     _ => panic!("Unknown operator: {}", operator),
                 }
-
             }
 
             Expression::Unary { operator, operand } => {
                 let right_val = self.evaluate_expression(*operand);
 
                 match operator.as_str() {
-                    "Minus" => match right_val {
+                    "Operator(Minus)" => match right_val {
                         JsValue::Number(n) => JsValue::Number(-n),
                         _ => JsValue::Undefined, // TODO: Add NaN (As referenced in Ecma Spec)
                     },
@@ -105,7 +105,6 @@ impl Interpreter {
                 }
             }
         }
-
     }
 
     fn execute_block(&mut self, statements: Vec<Statement>) {

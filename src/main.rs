@@ -11,7 +11,7 @@ pub mod lexer;
 mod parser;
 pub mod tokens;
 pub(crate) mod ast;
-pub mod JsValue;
+pub mod js_value;
 
 fn main() {
     println!("[Swiftly-Info]: Reading file...");
