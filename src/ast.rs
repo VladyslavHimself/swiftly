@@ -26,6 +26,12 @@ pub(crate) mod ast {
             object: Box<Expression>,
             property: String,
         },
+
+        PropertyAssignment {
+            object: Box<Expression>,
+            property: String,
+            value: Box<Expression>,
+        }
     }
 
     // Reference to Annex A.3 - Statements

@@ -86,6 +86,22 @@ impl Interpreter {
                 }
             }
 
+            Expression::PropertyAssignment { object, property, value } => {
+                let obj_value = self.evaluate_expression(*object);
+
+                let new_val = self.evaluate_expression(*value);
+
+                if let JsValue::Object(obj_ptr) = obj_value {
+                    obj_ptr.borrow_mut().set_property(property, new_val.clone());
+                    new_val
+                } else {
+                    panic!(
+                        "TypeError: Cannot assign to property '{}' of {:?}",
+                        property, obj_value
+                    );
+                }
+            }
+
             Expression::Literal(token) => JsValue::from(token),
             Expression::Identifier(name) => self.env.borrow().get(&name),
             Expression::Assignment { name, value } => {

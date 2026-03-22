@@ -197,16 +197,28 @@ impl Parser {
 
         if self.peek() == &Token::Operator(Assign) {
             self.pos += 1;
-
             let value = self.parse_expression();
-            if let Expression::Identifier(name) = expr {
-                return Expression::Assignment {
-                    name,
-                    value: Box::new(value),
-                };
+
+
+            match expr {
+                Expression::Identifier(name) => {
+                    return Expression::Assignment {
+                        name,
+                        value: Box::new(value),
+                    };
+                }
+                Expression::MemberAccess { object, property } => {
+                    return Expression::PropertyAssignment {
+                        object,
+                        property,
+                        value: Box::new(value),
+                    };
+                }
+                _ => {
+                    panic!("Invalid assignment target! Can only assign to variables or properties.");
+                }
             }
 
-            panic!("Invalid assignment target!");
         }
 
         expr
