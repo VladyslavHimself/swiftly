@@ -47,7 +47,7 @@ impl JsObject {
         // if didn't find, then go to prototype
         match &self.prototype {
            JsValue::Object(proto) => proto.borrow().get_property(key),
-            _ => JsValue::Undefined // TODO: Check what should be returned here (Null or Undefined)
+            _ => JsValue::Undefined
         }
     }
 

@@ -35,7 +35,7 @@ impl Parser {
             self.pos += 1;
         } else {
             panic!(
-                "Expected {:?}, but got {:?}",
+                "SyntaxError: Expected {:?}, but got {:?}",
                 expected, self.tokens[self.pos]
             );
         }
