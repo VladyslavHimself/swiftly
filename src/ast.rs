@@ -19,15 +19,23 @@ pub(crate) mod ast {
         Unary {
             operator: String,
             operand: Box<Expression>,
-        }
+        },
+        ObjectLiteral(Vec<(String, Expression)>),
+        // MemberAccess ex. (obj.prop)
+        MemberAccess {
+            object: Box<Expression>,
+            property: String,
+        },
     }
 
     // Reference to Annex A.3 - Statements
-    #[derive(Debug)]
-    #[derive(Clone)]
-pub enum Statement {
+    #[derive(Debug, Clone)]
+    pub enum Statement {
         // let <id> = <expr>;
-        VariableDeclaration { id: String, init: Expression },
+        VariableDeclaration {
+            id: String,
+            init: Expression,
+        },
         Block(Vec<Statement>),
         Expression(Expression),
         If {
@@ -38,7 +46,7 @@ pub enum Statement {
         While {
             condition: Expression,
             body: Box<Statement>,
-        }
+        },
     }
 
     // Root of the program

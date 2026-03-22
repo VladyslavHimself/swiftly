@@ -34,6 +34,9 @@ pub enum Punctuation {
     RBrace,
     LParen,
     RParen,
+    Colon,
+    Comma,
+    Dot,
 }
 
 #[derive(Clone, Debug, PartialEq)]

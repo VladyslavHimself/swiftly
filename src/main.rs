@@ -1,17 +1,18 @@
 use crate::interpreter::Interpreter;
 use crate::lexer::Lexer;
 use crate::parser::Parser;
+use crate::tokens::Token;
 use std::fs::File;
 use std::io::Read;
-use crate::tokens::Token;
 
+pub(crate) mod ast;
 mod environment;
 mod interpreter;
+pub mod js_object;
+pub mod js_value;
 pub mod lexer;
 mod parser;
 pub mod tokens;
-pub(crate) mod ast;
-pub mod js_value;
 
 fn main() {
     println!("[Swiftly-Info]: Reading file...");
@@ -36,7 +37,6 @@ fn main() {
     }
     println!("[Swiftly-Info]: Tokens generated successfully!");
     // ---
-
 
     // Parser
     println!("[Swiftly-Info]: Parsing program...");

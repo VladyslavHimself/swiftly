@@ -1,14 +1,37 @@
+use crate::js_object::JsObject;
 use crate::tokens::Literal::{JNumber, JString};
 use crate::tokens::Token;
+use std::cell::RefCell;
+use std::rc::Rc;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Clone)]
 pub enum JsValue {
     Number(f64),
     String(String),
     Undefined,
     Null,
     Boolean(bool),
+
+    // 6.1.7: The Object Type
+    Object(Rc<RefCell<JsObject>>),
 }
+
+impl PartialEq for JsValue {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (JsValue::Number(a), JsValue::Number(b)) => a == b,
+            (JsValue::String(a), JsValue::String(b)) => a == b,
+            (JsValue::Boolean(a), JsValue::Boolean(b)) => a == b,
+            (JsValue::Null, JsValue::Null) => true,
+            (JsValue::Undefined, JsValue::Undefined) => true,
+            // Reference Equality
+            (JsValue::Object(a), JsValue::Object(b)) => Rc::ptr_eq(a, b),
+            _ => false,
+        }
+    }
+}
+
+
 impl From<Token> for JsValue {
     fn from(token: Token) -> Self {
         match token {
@@ -49,8 +72,8 @@ impl JsValue {
             JsValue::Boolean(b) => *b,
             JsValue::Number(n) => *n != 0.0, // number add  && !n.is_nan()
             JsValue::String(s) => !s.is_empty(),
-            JsValue::Null => false,
-            JsValue::Undefined => false,
+            JsValue::Null | JsValue::Undefined => false,
+            JsValue::Object(_) => true,
             _ => false,
         }
     }

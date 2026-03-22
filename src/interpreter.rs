@@ -1,7 +1,6 @@
 use crate::ast::ast::{Expression, Statement};
 use crate::environment::{Environment, JsValue};
-use crate::tokens::Operator::Star;
-use crate::tokens::Token;
+use crate::js_object::JsObject;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -56,6 +55,24 @@ impl Interpreter {
 
     fn evaluate_expression(&self, expr: Expression) -> JsValue {
         match expr {
+            Expression::ObjectLiteral(props) => {
+                let obj = Rc::new(RefCell::new(JsObject::new(JsValue::Null)));
+                for (key, val_expr) in props {
+                    let value = self.evaluate_expression(val_expr);
+                    obj.borrow_mut().set_property(key, value);
+                }
+                JsValue::Object(obj)
+            },
+            Expression::MemberAccess { object, property } => {
+                let obj_value = self.evaluate_expression(*object);
+                if let JsValue::Object(obj_ptr) = obj_value {
+                    obj_ptr.borrow().get_property(&property)
+                } else {
+                    panic!("TypeError: Cannot read property '{}' of {:?}", property, obj_value);
+                }
+            }
+
+
             Expression::Literal(token) => JsValue::from(token),
             Expression::Identifier(name) => self.env.borrow().get(&name),
             Expression::Assignment { name, value } => {
@@ -83,7 +100,9 @@ impl Interpreter {
                     "/" | "Operator(Slash)" => left_value.binary_op(right_value, "Slash"),
                     "%" | "Operator(Percent)" => left_value.binary_op(right_value, "Percent"),
                     "Operator(Greater)" => left_value.compare(&right_value, "Greater"),
-                    "Operator(GreaterOrEqual)" => left_value.compare(&right_value, "GreaterOrEqual"),
+                    "Operator(GreaterOrEqual)" => {
+                        left_value.compare(&right_value, "GreaterOrEqual")
+                    }
                     "Operator(Less)" => left_value.compare(&right_value, "Less"),
                     "Operator(LessOrEqual)" => left_value.compare(&right_value, "LessOrEqual"),
                     "Operator(Equal)" => left_value.compare(&right_value, "Equal"),

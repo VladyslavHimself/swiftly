@@ -5,7 +5,7 @@ use crate::tokens::Operator::{
     Assign, Equal, Greater, GreaterOrEqual, Less, LessOrEqual, Minus, Not, NotEqual, Percent, Plus,
     Slash, Star,
 };
-use crate::tokens::Punctuation::{LBrace, LParen, RBrace, RParen, Semicolon};
+use crate::tokens::Punctuation::{Colon, Comma, Dot, LBrace, LParen, RBrace, RParen, Semicolon};
 
 pub struct Lexer {
     input: Vec<char>,
@@ -135,6 +135,21 @@ impl Lexer {
             ')' => {
                 self.pos += 1;
                 Token::Punctuation(RParen)
+            }
+
+            ':' => {
+                self.pos += 1;
+                Token::Punctuation(Colon)
+            }
+
+            '.' => {
+                self.pos += 1;
+                Token::Punctuation(Dot)
+            }
+
+            ',' => {
+                self.pos += 1;
+                Token::Punctuation(Comma)
             }
 
             '{' => {

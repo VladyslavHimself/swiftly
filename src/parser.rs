@@ -1,12 +1,13 @@
 use crate::Token;
 use crate::ast::ast::{Expression, Program, Statement};
+use crate::environment::JsValue;
 use crate::tokens::Keyword::{Else, If, Let, While};
 use crate::tokens::Literal::{JNumber, JString};
 use crate::tokens::Operator::{
     Assign, Equal, Greater, GreaterOrEqual, Less, LessOrEqual, Minus, Not, Percent, Plus, Slash,
     Star,
 };
-use crate::tokens::Punctuation::{LBrace, LParen, RBrace, RParen, Semicolon};
+use crate::tokens::Punctuation::{Colon, Comma, Dot, LBrace, LParen, RBrace, RParen, Semicolon};
 
 pub struct Parser {
     tokens: Vec<Token>,
@@ -21,6 +22,14 @@ impl Parser {
     // Helper method to peek current token
     fn peek(&self) -> &Token {
         &self.tokens[self.pos]
+    }
+
+    fn advance(&mut self) -> Token {
+        let token = self.tokens[self.pos].clone();
+        if token != Token::EOF {
+            self.pos += 1;
+        }
+        token
     }
 
     fn consume(&mut self, expected: Token) {
@@ -139,8 +148,49 @@ impl Parser {
                     panic!("Expected ')' after expression");
                 }
             }
+            Token::Punctuation(LBrace) => {
+                let mut properties = Vec::new();
+
+                while self.peek() != &Token::Punctuation(RBrace) {
+                    let key = match self.advance() {
+                        Token::Identifier(name) => name,
+                        _ => panic!("Expected identifier as object key"),
+                    };
+
+                    self.consume(Token::Punctuation(Colon));
+
+                    let value = self.parse_expression();
+                    properties.push((key, value));
+                    if self.peek() == &Token::Punctuation(Comma) {
+                        self.pos += 1;
+                    }
+                }
+
+                self.pos += 1;
+                Expression::ObjectLiteral(properties)
+            }
             _ => panic!("Expected expression, but got {:?}", self.peek()),
         }
+    }
+
+    fn parse_member_expression(&mut self) -> Expression {
+        let mut expr = self.parse_primary_expression();
+
+        while self.peek() == &Token::Punctuation(Dot) {
+            self.pos += 1;
+
+            let property = match self.advance() {
+                Token::Identifier(name) => name,
+                _ => panic!("Expected identifier after '.'"),
+            };
+
+            expr = Expression::MemberAccess {
+                object: Box::new(expr),
+                property,
+            };
+        }
+
+        expr
     }
 
     // Prerequisite to A.4 Functions and Classes
@@ -243,6 +293,6 @@ impl Parser {
             };
         }
 
-        self.parse_primary_expression()
+        self.parse_member_expression()
     }
 }
