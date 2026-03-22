@@ -54,9 +54,11 @@ impl JsObject {
     // !Reference to 10.1.9 | [[Set]] ( P, V, Receiver )
     // TODO: Simplified version without Accessors
     pub fn set_property(&mut self, key: String, value: JsValue) {
+
+        // TODO: Now check just for own propery. Add prototype chaining lookup
         if let Some(desc) = self.properties.get_mut(&key) {
             // TODO: Check for unwrap
-            if desc.writable.unwrap_or(false) {
+            if desc.writable == Some(true) {
                 desc.value = Some(value);
             }
             return;
