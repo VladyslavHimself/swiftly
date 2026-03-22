@@ -1,6 +1,5 @@
 use crate::Token;
 use crate::ast::ast::{Expression, Program, Statement};
-use crate::environment::JsValue;
 use crate::tokens::Keyword::{Else, If, Let, While};
 use crate::tokens::Literal::{JNumber, JString};
 use crate::tokens::Operator::{
@@ -13,7 +12,6 @@ pub struct Parser {
     tokens: Vec<Token>,
     pos: usize,
 }
-
 impl Parser {
     pub(crate) fn new(tokens: Vec<Token>) -> Self {
         Self { tokens, pos: 0 }

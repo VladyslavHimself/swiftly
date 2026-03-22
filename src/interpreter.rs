@@ -6,12 +6,23 @@ use std::rc::Rc;
 
 pub struct Interpreter {
     env: Rc<RefCell<Environment>>,
+    pub object_prototype: Rc<RefCell<JsObject>>,
 }
 
 impl Interpreter {
     pub(crate) fn new() -> Self {
+        let proto = Rc::new(RefCell::new(JsObject::new(JsValue::Null)));
+
+        proto.borrow_mut().set_property(
+            "toString".to_string(),
+            // Just for test
+            JsValue::String("[object Object]".to_string()),
+        );
+
+
         Self {
             env: Rc::new(RefCell::new(Environment::new())),
+            object_prototype: proto,
         }
     }
 
@@ -56,22 +67,24 @@ impl Interpreter {
     fn evaluate_expression(&self, expr: Expression) -> JsValue {
         match expr {
             Expression::ObjectLiteral(props) => {
-                let obj = Rc::new(RefCell::new(JsObject::new(JsValue::Null)));
+                let obj = Rc::new(RefCell::new(JsObject::new(JsValue::Object(self.object_prototype.clone()))));
                 for (key, val_expr) in props {
                     let value = self.evaluate_expression(val_expr);
                     obj.borrow_mut().set_property(key, value);
                 }
                 JsValue::Object(obj)
-            },
+            }
             Expression::MemberAccess { object, property } => {
                 let obj_value = self.evaluate_expression(*object);
                 if let JsValue::Object(obj_ptr) = obj_value {
                     obj_ptr.borrow().get_property(&property)
                 } else {
-                    panic!("TypeError: Cannot read property '{}' of {:?}", property, obj_value);
+                    panic!(
+                        "TypeError: Cannot read property '{}' of {:?}",
+                        property, obj_value
+                    );
                 }
             }
-
 
             Expression::Literal(token) => JsValue::from(token),
             Expression::Identifier(name) => self.env.borrow().get(&name),
