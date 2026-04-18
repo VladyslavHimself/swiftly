@@ -37,7 +37,7 @@ pub(crate) mod ast {
     // Reference to Annex A.3 - Statements
     #[derive(Debug, Clone)]
     pub enum Statement {
-        // let <id> = <expr>;
+        // var <id> = <expr>;
         VariableDeclaration {
             id: String,
             init: Expression,
@@ -53,6 +53,7 @@ pub(crate) mod ast {
             condition: Expression,
             body: Box<Statement>,
         },
+        EmptyStatement
     }
 
     // Root of the program

@@ -1,5 +1,5 @@
 use crate::Token;
-use crate::tokens::Keyword::{Else, If, Let, While};
+use crate::tokens::Keyword::{Else, If, Var, While};
 use crate::tokens::Literal::{JBoolean, JNumber, JString};
 use crate::tokens::Operator::{
     Assign, Equal, Greater, GreaterOrEqual, Less, LessOrEqual, Minus, Not, NotEqual, Percent, Plus,
@@ -33,7 +33,7 @@ impl Lexer {
         if ch.is_alphabetic() {
             let word = self.read_identifier();
             return match word.as_str() {
-                "let" => Token::Keyword(Let),
+                "var" => Token::Keyword(Var),
                 "true" => Token::Literal(JBoolean(true)),
                 "false" => Token::Literal(JBoolean(false)),
                 "if" => Token::Keyword(If),

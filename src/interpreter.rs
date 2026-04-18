@@ -45,6 +45,9 @@ impl Interpreter {
                 let value = self.evaluate_expression(expr);
                 println!("Evaluated expression to {:?}", value);
             }
+            Statement::EmptyStatement => {
+                self.evaluate_expression(Expression::Literal(JsValue::Undefined));
+            },
             Statement::If {
                 condition,
                 then_branch,

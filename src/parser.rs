@@ -1,6 +1,6 @@
 use crate::Token;
 use crate::ast::ast::{Expression, Program, Statement};
-use crate::tokens::Keyword::{Else, If, Let, While};
+use crate::tokens::Keyword::{Else, If, Var, While};
 use crate::tokens::Literal::{JNumber, JString};
 use crate::tokens::Operator::{
     Assign, Equal, Greater, GreaterOrEqual, Less, LessOrEqual, Minus, Not, Percent, Plus, Slash,
@@ -52,16 +52,22 @@ impl Parser {
 
     fn parse_statement(&mut self) -> Statement {
         match self.peek() {
-            Token::Keyword(Let) => self.parse_variable_declaration(),
+            Token::Keyword(Var) => self.parse_variable_declaration(),
             Token::Punctuation(LBrace) => self.parse_block(),
             Token::Keyword(If) => self.parse_if_statement(),
             Token::Keyword(While) => self.parse_while_statement(),
+            Token::Punctuation(Semicolon) => self.parse_empy_statement(),
             _ => {
                 let expr = self.parse_expression();
                 self.consume(Token::Punctuation(Semicolon));
                 Statement::Expression(expr)
             }
         }
+    }
+
+    fn parse_empy_statement(&mut self) -> Statement {
+        self.consume(Token::Punctuation(Semicolon));
+        Statement::EmptyStatement
     }
 
     fn parse_while_statement(&mut self) -> Statement {
@@ -108,14 +114,14 @@ impl Parser {
     }
 
     fn parse_variable_declaration(&mut self) -> Statement {
-        self.consume(Token::Keyword(Let));
+        self.consume(Token::Keyword(Var));
 
         let id = if let Token::Identifier(name) = self.peek().clone() {
             self.pos += 1;
             // &String to String (Temporary)
             name.clone()
         } else {
-            panic!("Expected identifier after let");
+            panic!("Expected identifier after var");
         };
 
         self.consume(Token::Operator(Assign));

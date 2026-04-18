@@ -21,7 +21,7 @@ pub enum Literal {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Keyword {
-    Let,
+    Var,
     If,
     Else,
     While,
