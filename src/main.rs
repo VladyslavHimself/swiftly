@@ -1,3 +1,5 @@
+//! # Swiftly Runtime
+
 use crate::runtime::Runtime;
 use crate::tokens::Token;
 use std::fs::File;

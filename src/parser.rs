@@ -1,3 +1,5 @@
+//! # Swiftly Parser
+
 use crate::Token;
 use crate::ast::ast::{Expression, Program, Statement};
 use crate::tokens::Keyword::{Else, If, Var, While};
@@ -17,11 +19,13 @@ impl Parser {
         Self { tokens, pos: 0 }
     }
 
-    // Helper method to peek current token
+    /// Returns the next token in the stream without advancing the position.
     fn peek(&self) -> &Token {
         &self.tokens[self.pos]
     }
 
+    /// Returns the next token in the stream and advances the position.
+    /// If the current token is EOF [TOKEN::EOF], the cursor will be in the same position
     fn advance(&mut self) -> Token {
         let token = self.tokens[self.pos].clone();
         if token != Token::EOF {
@@ -30,6 +34,10 @@ impl Parser {
         token
     }
 
+
+    /// Consumes the next token in the stream if it matches the expected token.
+    /// # Panics
+    /// Method calls panic with a "SyntaxError" message if the current token does not expect the argument
     fn consume(&mut self, expected: Token) {
         if self.tokens[self.pos] == expected {
             self.pos += 1;
